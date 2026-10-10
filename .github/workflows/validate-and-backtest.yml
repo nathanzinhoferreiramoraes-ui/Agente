@@ -1,0 +1,39 @@
+name: Validate and historical paper backtest
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'agente100/**'
+      - 'tests/**'
+      - '.github/workflows/validate-and-backtest.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests (offline)
+        run: python -m unittest discover -s tests -v
+      - name: Compile Python modules
+        run: python -m compileall -q agente100 tests
+      - name: Public historical research (no orders)
+        continue-on-error: true
+        run: |
+          python -m agente100.history_cli | tee historical-research.txt
+          test -s historical-research.txt
+      - name: Upload research output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-paper-research
+          path: historical-research.txt
+          if-no-files-found: ignore
+          retention-days: 7
