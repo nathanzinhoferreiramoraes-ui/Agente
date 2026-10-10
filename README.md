@@ -38,3 +38,11 @@ python -m agente100.market_cli
 ```
 
 Essa execução faz requisições HTTP públicas para candles de 15 minutos de BTC-USD, ETH-USD e SOL-USD da Coinbase Exchange, calcula RSI e rompimento de Bandas de Bollinger e apresenta **somente uma análise**. Não solicita autorização e **não executa nem simula uma ordem**. A fonte pode falhar ou bloquear requisições; a rotina relata indisponibilidade em vez de inventar preços. Sentimento de notícias ainda é neutro (0), pois não há coletor de notícias conectado. A estratégia e os indicadores são experimentais, não validados para investimentos.
+
+## Pesquisa de mercado + notícias (somente leitura)
+
+```bash
+python -m agente100.research_cli
+```
+
+A rotina tenta consultar candles públicos da Coinbase Exchange e manchetes RSS públicas do CoinDesk. Calcula um sentimento **heurístico** por palavras-chave, por ativo, com manchetes datadas das últimas 24 horas. Na falha do feed, usa sentimento neutro e informa a indisponibilidade; não inventa notícias. Fontes podem mudar, ficar indisponíveis ou bloquear acesso. O código **não abre posições**, nem mesmo simuladas, neste comando. A validade dos dados externos e o desempenho da estratégia ainda precisam ser testados.
