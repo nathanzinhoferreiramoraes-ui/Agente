@@ -22,3 +22,11 @@ python -m agente100.demo
 ## Próximas etapas
 
 Integrar dados verificáveis de preços e notícias; construir interface de autorização humana; implementar ciclo de vida de posições, risco e backtest; adicionar execução automática dos testes no GitHub Actions. Manter isolamento total de ordens reais.
+
+## Aprovação interativa (simulação)
+
+```bash
+python -m agente100.cli
+```
+
+O terminal mostra um sinal baseado em dados sintéticos e exige digitar o ID exato antes de registrar a ordem fictícia. O arquivo `agente100/demo.py` continua sendo uma demonstração programática sem interação. O GitHub Actions em `.github/workflows/tests.yml` executa os testes a cada push/PR; verifique a aba **Actions** para conferir o resultado.
