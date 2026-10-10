@@ -60,3 +60,11 @@ O backtest experimental usa rompimento do máximo/mínimo dos 20 candles anterio
 O módulo `agente100.agent_backtest.simulate_agent_history` aceita candles OHLC históricos sincronizados de 15 minutos, calcula os candidatos em cada ponto do tempo com candles já fechados e usa `Agente100.choose` para selecionar o ativo. As entradas hipotéticas ocorrem na abertura do candle seguinte. O tamanho da operação é configurado no simulador; não é decidido pelo agente. Não há execução no Robô 100 nem autorização fictícia: este é apenas um cálculo contrafactual offline.
 
 **Limitações:** não há carregador de histórico remoto nem arquivo histórico incluído; o sentimento de notícias históricas permanece neutro para evitar viés de antecipação; a estratégia não foi validada estatisticamente. Testes automatizados estão em `tests/test_agent_backtest.py`. Para rodar todos: `python -m unittest discover -s tests -v`.
+
+## Histórico público real (pesquisa, sem ordens)
+
+```bash
+python -m agente100.history_cli
+```
+
+Consulta 120 candles completos de 15 minutos por ativo (BTC-USD, ETH-USD e SOL-USD) da API pública da Coinbase e executa a simulação walk-forward do agente. O carregador `agente100.history.fetch_history` permite de 24 a 300 candles por requisição, exige períodos contínuos e rejeita duplicatas ou lacunas. O comando não cria ordens e não exige credenciais. **Se a API não fornecer todos os candles, o teste é interrompido**, sem inventar dados. O feed pode sofrer limites, bloqueios ou mudanças. Notícias históricas não estão integradas (sentimento neutro); resultados são experimentais, não previsões. Os testes de integração HTTP são mockados e a execução contra a API ainda precisa ser verificada.
