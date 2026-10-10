@@ -31,10 +31,10 @@ def fetch_candles(product: str, timeout: int = 10) -> list[dict]:
         ts, low, high, opened, close, volume = map(float, item[:6])
         if not all(math.isfinite(v) for v in (ts, low, high, opened, close, volume)):
             raise ValueError("Non-finite market value")
-        if min(low, high, opened, close) <= 0 or low > high or not low <= close <= high:
+        if min(low, high, opened, close) <= 0 or low > min(opened, close) or high < max(opened, close):
             raise ValueError("Invalid OHLC")
-        candles.append({"time": int(ts), "close": close})
-    return sorted(candles, key=lambda c: c["time"])
+        if ts != int(ts) or int(ts) % GRANULARITY_SECONDS:\n            raise ValueError("Invalid candle timestamp")\n        candles.append({"time": int(ts), "close": close})
+    ordered = sorted(candles, key=lambda c: c["time"])\n    if len({c["time"] for c in ordered}) != len(ordered):\n        raise ValueError("Duplicate candles")\n    return ordered
 
 
 def rsi(closes: list[float], period: int = 14) -> float:
@@ -60,11 +60,11 @@ def candidate_from_candles(product: str, candles: list[dict], news_score: float 
         raise ValueError("Timezone-aware now required")
     times = [int(c["time"]) for c in candles]
     closes = [float(c["close"]) for c in candles]
-    if times != sorted(set(times)) or not all(math.isfinite(v) and v > 0 for v in closes):
+    if (times != sorted(set(times))\n            or any(t % GRANULARITY_SECONDS for t in times)\n            or any(times[i] - times[i - 1] != GRANULARITY_SECONDS for i in range(1, len(times)))\n            or not all(math.isfinite(v) and v > 0 for v in closes)\n            or not math.isfinite(news_score) or not -1 <= news_score <= 1):
         raise ValueError("Unordered or invalid candles")
     now_ts = now.timestamp()
     completed = [(t, c) for t, c in zip(times, closes) if t + GRANULARITY_SECONDS <= now_ts]
-    if len(completed) < 21:
+    if any(t > now_ts for t in times):\n        raise ValueError("Future candle timestamp")\n    if len(completed) < 21:
         raise ValueError("Not enough completed candles")
     if now_ts - (completed[-1][0] + GRANULARITY_SECONDS) > 2 * GRANULARITY_SECONDS:
         raise ValueError("Stale candles")
