@@ -54,3 +54,9 @@ python -m agente100.backtest_cli
 ```
 
 O backtest experimental usa rompimento do máximo/mínimo dos 20 candles anteriores, entrada na abertura do candle seguinte, TP de 0,5%, SL de 1%, custos, slippage, duração máxima de 8 candles e valor nocional fixo de 10 unidades fictícias. Em candles que atingem TP e SL, assume SL primeiro. **Este backtest ainda não usa os sinais completos do Agente 100, nem notícias ou dados históricos reais.** Os resultados da demonstração não representam desempenho passado ou esperado. Não há conexão com corretoras. Execute os testes com `python -m unittest discover -s tests -v`.
+
+## Backtest walk-forward do Agente 100
+
+O módulo `agente100.agent_backtest.simulate_agent_history` aceita candles OHLC históricos sincronizados de 15 minutos, calcula os candidatos em cada ponto do tempo com candles já fechados e usa `Agente100.choose` para selecionar o ativo. As entradas hipotéticas ocorrem na abertura do candle seguinte. O tamanho da operação é configurado no simulador; não é decidido pelo agente. Não há execução no Robô 100 nem autorização fictícia: este é apenas um cálculo contrafactual offline.
+
+**Limitações:** não há carregador de histórico remoto nem arquivo histórico incluído; o sentimento de notícias históricas permanece neutro para evitar viés de antecipação; a estratégia não foi validada estatisticamente. Testes automatizados estão em `tests/test_agent_backtest.py`. Para rodar todos: `python -m unittest discover -s tests -v`.
