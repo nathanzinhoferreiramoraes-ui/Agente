@@ -9,7 +9,7 @@ def main():
         result = run_public_history(end=datetime.now(timezone.utc), candles=120)
     except Exception as exc:
         print(f"Cannot backtest safely: {type(exc).__name__}: {exc}")
-        return
+        raise SystemExit(1) from exc
     print(f"Trades: {len(result.trades)}; win rate: {result.win_rate:.1%}")
     print(f"Paper balance: {result.starting_balance:.2f} -> {result.ending_balance:.2f}")
     print(f"Maximum realized drawdown: {result.max_drawdown_pct:.2f}%")
