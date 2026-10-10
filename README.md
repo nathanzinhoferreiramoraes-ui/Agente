@@ -46,3 +46,11 @@ python -m agente100.research_cli
 ```
 
 A rotina tenta consultar candles públicos da Coinbase Exchange e manchetes RSS públicas do CoinDesk. Calcula um sentimento **heurístico** por palavras-chave, por ativo, com manchetes datadas das últimas 24 horas. Na falha do feed, usa sentimento neutro e informa a indisponibilidade; não inventa notícias. Fontes podem mudar, ficar indisponíveis ou bloquear acesso. O código **não abre posições**, nem mesmo simuladas, neste comando. A validade dos dados externos e o desempenho da estratégia ainda precisam ser testados.
+
+## Backtesting offline (dados sintéticos)
+
+```bash
+python -m agente100.backtest_cli
+```
+
+O backtest experimental usa rompimento do máximo/mínimo dos 20 candles anteriores, entrada na abertura do candle seguinte, TP de 0,5%, SL de 1%, custos, slippage, duração máxima de 8 candles e valor nocional fixo de 10 unidades fictícias. Em candles que atingem TP e SL, assume SL primeiro. **Este backtest ainda não usa os sinais completos do Agente 100, nem notícias ou dados históricos reais.** Os resultados da demonstração não representam desempenho passado ou esperado. Não há conexão com corretoras. Execute os testes com `python -m unittest discover -s tests -v`.
