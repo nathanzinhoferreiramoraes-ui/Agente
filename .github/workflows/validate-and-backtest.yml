@@ -27,6 +27,7 @@ jobs:
       - name: Public historical research (no orders)
         continue-on-error: true
         run: |
+          set -o pipefail
           python -m agente100.history_cli | tee historical-research.txt
           test -s historical-research.txt
       - name: Upload research output
