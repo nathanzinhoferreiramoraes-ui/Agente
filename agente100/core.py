@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
+from math import isfinite
 from uuid import uuid4
 
 
@@ -36,7 +37,10 @@ class Agente100:
     """Ranks candidates; NEVER sets trade size."""
 
     def choose(self, candidates: list[Candidate]) -> Signal | None:
-        valid = [c for c in candidates if c.price > 0 and 0 <= c.rsi <= 100
+        valid = [c for c in candidates
+                 if c.symbol and isinstance(c.direction, Direction)
+                 and all(isfinite(x) for x in (c.price, c.rsi, c.news_score, c.volatility))
+                 and c.price > 0 and 0 <= c.rsi <= 100
                  and -1 <= c.news_score <= 1 and c.volatility >= 0]
         if not valid:
             return None
@@ -62,7 +66,8 @@ class Robo100:
 
     def __init__(self, fixed_notional: float = 10.0, balance: float = 100.0,
                  max_signal_age_seconds: int = 300):
-        if fixed_notional <= 0 or balance <= 0 or max_signal_age_seconds <= 0:
+        if (not all(isfinite(x) for x in (fixed_notional, balance, max_signal_age_seconds))
+                or fixed_notional <= 0 or balance <= 0 or max_signal_age_seconds <= 0):
             raise ValueError("Configuration must be positive")
         self.fixed_notional = fixed_notional
         self.balance = balance
@@ -80,7 +85,8 @@ class Robo100:
             raise ValueError("Invalid timestamp")
         if (now - signal.created_at).total_seconds() > self.max_signal_age_seconds:
             raise ValueError("Expired signal")
-        if signal.entry <= 0 or signal.take_profit <= 0 or signal.stop_loss <= 0:
+        if (not all(isfinite(x) for x in (signal.entry, signal.take_profit, signal.stop_loss))
+                or signal.entry <= 0 or signal.take_profit <= 0 or signal.stop_loss <= 0):
             raise ValueError("Invalid prices")
         if signal.direction == Direction.BUY:
             valid = signal.stop_loss < signal.entry < signal.take_profit
